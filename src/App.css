@@ -532,6 +532,221 @@ h2 {
   color: var(--muted);
   font-size: 13px;
 }
+.customizer {
+  border-top: 1px solid var(--line);
+}
+.customizer-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 60px;
+  margin-bottom: 55px;
+}
+.customizer-heading > p {
+  max-width: 320px;
+  margin: 0 0 4px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+.customizer-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.55fr);
+  gap: 42px;
+  align-items: stretch;
+}
+.model-stage {
+  position: relative;
+  min-height: 560px;
+  overflow: hidden;
+  background: #e8e3da;
+}
+.model-stage canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 560px;
+  cursor: grab;
+}
+.model-stage canvas:active {
+  cursor: grabbing;
+}
+.model-placeholder,
+.model-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+.model-placeholder span {
+  color: var(--clay);
+  font:
+    10px "DM Mono",
+    monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.model-placeholder strong {
+  color: var(--ink);
+  font:
+    34px "Instrument Serif",
+    serif;
+}
+.model-placeholder p {
+  margin: 0;
+  font-size: 12px;
+}
+.model-placeholder code {
+  padding: 3px 6px;
+  background: rgba(255, 255, 255, 0.55);
+  font:
+    10px "DM Mono",
+    monospace;
+}
+.stage-caption {
+  position: absolute;
+  right: 20px;
+  bottom: 18px;
+  color: var(--muted);
+  font:
+    9px "DM Mono",
+    monospace;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.customizer-controls {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 34px;
+  background: #eeece5;
+}
+.control-block {
+  padding: 0 0 28px;
+  margin-bottom: 28px;
+  border-bottom: 1px solid var(--line);
+}
+.control-label {
+  margin: 0 0 18px;
+  color: var(--muted);
+  font:
+    10px "DM Mono",
+    monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.swatches {
+  display: flex;
+  gap: 11px;
+}
+.swatch {
+  width: 30px;
+  height: 30px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  outline: 1px solid transparent;
+  outline-offset: 3px;
+}
+.swatch:hover,
+.swatch.active {
+  outline-color: var(--ink);
+}
+.control-value {
+  display: block;
+  margin-top: 14px;
+  color: var(--ink);
+  font:
+    11px "DM Mono",
+    monospace;
+}
+.pattern-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.pattern-option {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 10px;
+}
+.pattern-option.active {
+  color: var(--ink);
+}
+.pattern-preview {
+  display: block;
+  width: 100%;
+  height: 52px;
+  border: 1px solid var(--line);
+  background: var(--clay);
+}
+.pattern-preview.andino {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--clay) 0 10px,
+    var(--sage) 10px 18px,
+    #d2a45a 18px 25px
+  );
+}
+.pattern-preview.stripes {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--clay) 0 12px,
+    #e9e1d3 12px 22px
+  );
+}
+.pattern-option.active .pattern-preview {
+  border: 2px solid var(--ink);
+}
+.customizer-note {
+  display: flex;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.7;
+}
+.customizer-note svg {
+  flex: 0 0 auto;
+  color: var(--clay);
+}
+.customizer-note p {
+  margin: 0;
+}
+.customizer-button {
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 26px;
+}
+@media (max-width: 760px) {
+  .customizer-heading {
+    align-items: start;
+    flex-direction: column;
+    gap: 24px;
+    margin-bottom: 35px;
+  }
+  .customizer-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .model-stage,
+  .model-stage canvas {
+    min-height: 430px;
+  }
+  .customizer-controls {
+    padding: 26px;
+  }
+}
 footer {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;

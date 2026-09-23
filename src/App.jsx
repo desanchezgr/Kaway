@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { Suspense, useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -10,6 +10,9 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
+import { Canvas } from "@react-three/fiber";
+import { Environment, OrbitControls, useGLTF } from "@react-three/drei";
+import * as THREE from "three";
 import "./App.css";
 
 const products = [
@@ -159,6 +162,193 @@ const collectionFilters = [
 ];
 
 const formatPrice = (amount) => `$${amount.toLocaleString("en-US")}`;
+
+const atelierColors = [
+  { name: "Arcilla", value: "#b65d45" },
+  { name: "Maíz", value: "#d2a45a" },
+  { name: "Sage", value: "#536c5c" },
+  { name: "Obsidiana", value: "#211f1c" },
+  { name: "Marfil", value: "#e9e1d3" },
+];
+
+const atelierPatterns = [
+  { name: "Liso", value: "solid" },
+  { name: "Andino", value: "andino" },
+  { name: "Rayas", value: "stripes" },
+];
+
+function PonchoModel({ color, pattern }) {
+  const { scene } = useGLTF("/models/poncho.glb");
+  const patternTexture = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 180;
+    canvas.height = 180;
+    const context = canvas.getContext("2d");
+    context.fillStyle = color;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    if (pattern === "andino") {
+      context.strokeStyle = "#d2a45a";
+      context.lineWidth = 12;
+      for (let index = -180; index < 360; index += 36) {
+        context.beginPath();
+        context.moveTo(index, 0);
+        context.lineTo(index + 180, 180);
+        context.stroke();
+      }
+    }
+
+    if (pattern === "stripes") {
+      context.fillStyle = "rgba(255, 255, 255, .2)";
+      for (let index = 0; index < 180; index += 30) {
+        context.fillRect(index, 0, 12, 180);
+      }
+    }
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+    return texture;
+  }, [color, pattern]);
+
+  useEffect(() => {
+    scene.traverse((child) => {
+      if (!child.isMesh) return;
+      const materials = Array.isArray(child.material)
+        ? child.material
+        : [child.material];
+
+      materials.forEach((material) => {
+        material.color.set(color);
+        material.map = pattern === "solid" ? null : patternTexture;
+        material.needsUpdate = true;
+      });
+    });
+  }, [scene, color, pattern, patternTexture]);
+
+  return <primitive object={scene} scale={2.4} position={[0, -1.4, 0]} />;
+}
+
+class ModelErrorBoundary extends React.Component {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="model-placeholder">
+          <span>Atelier 3D</span>
+          <strong>Tu poncho aparecerá aquí</strong>
+          <p>
+            Copia el archivo en <code>public/models/poncho.glb</code>
+          </p>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+function AtelierCustomizer() {
+  const [color, setColor] = useState(atelierColors[0].value);
+  const [pattern, setPattern] = useState(atelierPatterns[0].value);
+
+  return (
+    <section className="customizer section-wrap" id="personaliza">
+      <div className="customizer-heading">
+        <div>
+          <p className="eyebrow">Kaway Atelier / En desarrollo</p>
+          <h2>
+            Tu poncho,
+            <br />
+            <em>tu lenguaje.</em>
+          </h2>
+        </div>
+        <p>
+          Explora la silueta en 3D. Gírala, acércala y encuentra una combinación
+          de color y textura que te represente.
+        </p>
+      </div>
+      <div className="customizer-layout">
+        <div className="model-stage">
+          <ModelErrorBoundary>
+            <Canvas camera={{ position: [0, 0, 6], fov: 35 }}>
+              <ambientLight intensity={1.8} />
+              <directionalLight position={[3, 5, 4]} intensity={2.2} />
+              <Suspense
+                fallback={
+                  <div className="model-loading">Cargando pieza...</div>
+                }
+              >
+                <PonchoModel color={color} pattern={pattern} />
+                <Environment preset="studio" />
+              </Suspense>
+              <OrbitControls
+                enablePan={false}
+                minDistance={3.5}
+                maxDistance={8}
+              />
+            </Canvas>
+          </ModelErrorBoundary>
+          <span className="stage-caption">
+            Arrastra para girar / rueda para acercar
+          </span>
+        </div>
+        <aside className="customizer-controls">
+          <div className="control-block">
+            <p className="control-label">01 / Color base</p>
+            <div className="swatches">
+              {atelierColors.map((item) => (
+                <button
+                  className={color === item.value ? "swatch active" : "swatch"}
+                  style={{ background: item.value }}
+                  onClick={() => setColor(item.value)}
+                  aria-label={item.name}
+                  key={item.value}
+                />
+              ))}
+            </div>
+            <span className="control-value">
+              {atelierColors.find((item) => item.value === color)?.name}
+            </span>
+          </div>
+          <div className="control-block">
+            <p className="control-label">02 / Patrón textil</p>
+            <div className="pattern-options">
+              {atelierPatterns.map((item) => (
+                <button
+                  className={
+                    pattern === item.value
+                      ? "pattern-option active"
+                      : "pattern-option"
+                  }
+                  onClick={() => setPattern(item.value)}
+                  key={item.value}
+                >
+                  <span className={`pattern-preview ${item.value}`} />
+                  {item.name}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="customizer-note">
+            <Sparkles size={15} />
+            <p>
+              La personalización final se realiza a mano en nuestro atelier,
+              respetando la caída y la textura de cada tejido.
+            </p>
+          </div>
+          <button className="primary-button customizer-button">
+            Solicitar esta pieza <ArrowRight size={16} />
+          </button>
+        </aside>
+      </div>
+    </section>
+  );
+}
 
 function CartPage({ cart, onBack, onRemove, onChangeQuantity }) {
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -523,6 +713,7 @@ function App() {
                 </a>
               </div>
             </section>
+            <AtelierCustomizer />
             <section className="atelier section-wrap" id="atelier">
               <p className="eyebrow">Kaway Atelier</p>
               <h2>Hecho para quedarse.</h2>
